@@ -8,10 +8,20 @@ CORS(app)
 command = ""
 output = ""
 
+# 🔐 your secret key
+SECRET_KEY = "hemu123"
+
 @app.route("/send", methods=["POST"])
 def send():
     global command
-    command = request.json["command"]
+
+    data = request.json
+
+    # ✅ check key
+    if data.get("key") != SECRET_KEY:
+        return jsonify({"error": "unauthorized"})
+
+    command = data.get("command", "")
     return jsonify({"status": "ok"})
 
 @app.route("/get", methods=["GET"])
@@ -24,7 +34,7 @@ def get():
 @app.route("/result", methods=["POST"])
 def result():
     global output
-    output = request.json["output"]
+    output = request.json.get("output", "")
     return jsonify({"status": "done"})
 
 @app.route("/output", methods=["GET"])
