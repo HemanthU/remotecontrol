@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MAX Remote</title>
+</head>
+<body>
+    <h2>MAX Remote Control</h2>
+
+    <input id="cmd" placeholder="Enter command">
+    <button onclick="send()">Send</button>
+
+    <pre id="out"></pre>
+
+    <script>
+        const SERVER = "https://your-app.onrender.com";
+
+        function send() {
+            let cmd = document.getElementById("cmd").value;
+
+            fetch(SERVER + "/send", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({command: cmd})
+            });
+        }
+
+        async function getOutput() {
+            let res = await fetch(SERVER + "/output");
+            let data = await res.json();
+            document.getElementById("out").innerText = data.output;
+        }
+
+        setInterval(getOutput, 2000);
+    </script>
+</body>
+</html>
