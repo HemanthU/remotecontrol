@@ -26,7 +26,7 @@ h1 { margin:20px; }
     padding:15px;
     margin:10px;
     border-radius:15px;
-    width:300px;
+    width:320px;
     box-shadow:0 0 15px rgba(0,0,0,0.5);
     transition:0.3s;
 }
@@ -44,44 +44,103 @@ button {
     background:#22c55e;
     color:white;
     cursor:pointer;
+    transition:0.3s;
 }
 
 button:hover {
     background:#16a34a;
+    transform:scale(1.05);
 }
 
-#touchpad {
+input {
+    padding:10px;
     width:90%;
-    height:300px;
+    border-radius:8px;
+    border:none;
+    margin-top:10px;
+}
+
+pre {
+    margin:20px;
     background:#000;
-    margin:20px auto;
-    border-radius:20px;
+    padding:10px;
+    border-radius:10px;
+    max-height:200px;
+    overflow:auto;
 }
 </style>
 </head>
 
 <body>
 
-<h1>⚡ MAX Remote</h1>
+<h1>⚡ MAX Command Control</h1>
 
 <div class="container">
 
+<!-- APPS -->
 <div class="card">
-<h3>Apps</h3>
+<h3>🖥️ Apps</h3>
 <button onclick="send('calc')">Calculator</button>
 <button onclick="send('notepad')">Notepad</button>
+<button onclick="send('mspaint')">Paint</button>
+<button onclick="send('taskmgr')">Task Manager</button>
+<button onclick="send('cmd')">Command Prompt</button>
+<button onclick="send('powershell')">PowerShell</button>
 </div>
 
+<!-- SYSTEM -->
 <div class="card">
-<h3>Advanced</h3>
+<h3>⚙️ System</h3>
+<button onclick="send('shutdown /s /t 5')">Shutdown</button>
+<button onclick="send('shutdown /r /t 5')">Restart</button>
+<button onclick="send('rundll32.exe user32.dll,LockWorkStation')">Lock</button>
+<button onclick="send('control')">Control Panel</button>
+<button onclick="send('start ms-settings:')">Settings</button>
+</div>
+
+<!-- FILES -->
+<div class="card">
+<h3>📂 File Explorer</h3>
+<button onclick="send('explorer')">Open Explorer</button>
+<button onclick="send('explorer C:\\')">C Drive</button>
+<button onclick="send('explorer D:\\')">D Drive</button>
+<button onclick="send('getfiles')">List Files</button>
+</div>
+
+<!-- INTERNET -->
+<div class="card">
+<h3>🌐 Web</h3>
+<button onclick="send('start https://google.com')">Google</button>
+<button onclick="send('start https://youtube.com')">YouTube</button>
+<button onclick="send('start https://github.com')">GitHub</button>
+</div>
+
+<!-- INFO -->
+<div class="card">
+<h3>📊 System Info</h3>
+<button onclick="send('ipconfig')">IP Config</button>
+<button onclick="send('systeminfo')">System Info</button>
+<button onclick="send('whoami')">User</button>
+<button onclick="send('hostname')">Hostname</button>
+</div>
+
+<!-- ADVANCED -->
+<div class="card">
+<h3>🔥 Advanced</h3>
 <button onclick="send('screenshot')">Screenshot</button>
-<button onclick="send('getfiles')">Files</button>
+<button onclick="send('services.msc')">Services</button>
+<button onclick="send('devmgmt.msc')">Device Manager</button>
+<button onclick="send('diskmgmt.msc')">Disk Manager</button>
+</div>
+
+<!-- CUSTOM -->
+<div class="card">
+<h3>✍️ Custom Command</h3>
+<input id="cmd" placeholder="Type any command...">
+<button onclick="custom()">Run</button>
 </div>
 
 </div>
-
-<h2>🖱️ Touchpad</h2>
-<div id="touchpad"></div>
 
 <pre id="out"></pre>
 
@@ -96,49 +155,14 @@ function send(command){
     });
 }
 
-// TOUCHPAD LOGIC
-let lastX = 0;
-let lastY = 0;
+function custom(){
+    let cmd = document.getElementById("cmd").value;
+    send(cmd);
+}
 
-const pad = document.getElementById("touchpad");
-
-pad.addEventListener("touchstart", e => {
-    let t = e.touches[0];
-    lastX = t.clientX;
-    lastY = t.clientY;
-
-    send("mousedown");
-});
-
-pad.addEventListener("touchmove", e => {
-    let t = e.touches[0];
-
-    let dx = t.clientX - lastX;
-    let dy = t.clientY - lastY;
-
-    lastX = t.clientX;
-    lastY = t.clientY;
-
-    fetch(SERVER + "/send", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({
-            command: "move " + dx + " " + dy
-        })
-    });
-});
-
-pad.addEventListener("touchend", () => {
-    send("mouseup");
-});
-
-pad.addEventListener("click", () => {
-    send("click");
-});
-
-// output
+// show output
 async function getOutput(){
-    let res = await fetch(SERVER + "/output");
+    let res = await fetch(SERVER+"/output");
     let data = await res.json();
     document.getElementById("out").innerText = data.output;
 }
