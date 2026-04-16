@@ -13,9 +13,7 @@ body {
     text-align:center;
 }
 
-h1 {
-    margin:20px;
-}
+h1 { margin:20px; }
 
 .container {
     display:flex;
@@ -46,86 +44,44 @@ button {
     background:#22c55e;
     color:white;
     cursor:pointer;
-    transition:0.3s;
 }
 
 button:hover {
     background:#16a34a;
-    transform:scale(1.05);
 }
 
-input {
-    padding:10px;
+#touchpad {
     width:90%;
-    border-radius:8px;
-    border:none;
-}
-
-pre {
-    margin:20px;
+    height:300px;
     background:#000;
-    padding:10px;
-    border-radius:10px;
+    margin:20px auto;
+    border-radius:20px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>⚡ MAX Remote Control</h1>
+<h1>⚡ MAX Remote</h1>
 
 <div class="container">
 
-<!-- Apps -->
 <div class="card">
 <h3>Apps</h3>
 <button onclick="send('calc')">Calculator</button>
 <button onclick="send('notepad')">Notepad</button>
-<button onclick="send('taskmgr')">Task Manager</button>
 </div>
 
-<!-- System -->
-<div class="card">
-<h3>System</h3>
-<button onclick="send('shutdown /r /t 5')">Restart</button>
-<button onclick="send('rundll32.exe user32.dll,LockWorkStation')">Lock</button>
-</div>
-
-<!-- Mouse -->
-<div class="card">
-<h3>Mouse</h3>
-<button onclick="send('left')">⬅️</button>
-<button onclick="send('right')">➡️</button>
-<button onclick="send('up')">⬆️</button>
-<button onclick="send('down')">⬇️</button>
-<br>
-<button onclick="send('click')">Click</button>
-</div>
-
-<!-- Drag -->
-<div class="card">
-<h3>Drag</h3>
-<button onclick="send('drag_left')">⬅️ Drag</button>
-<button onclick="send('drag_right')">➡️ Drag</button>
-<button onclick="send('drag_up')">⬆️ Drag</button>
-<button onclick="send('drag_down')">⬇️ Drag</button>
-</div>
-
-<!-- Advanced -->
 <div class="card">
 <h3>Advanced</h3>
-<button onclick="send('screenshot')">📸 Screenshot</button>
-<button onclick="send('getfiles')">📂 Files</button>
-</div>
-
-<!-- Custom -->
-<div class="card">
-<h3>Custom Command</h3>
-<input id="cmd" placeholder="Enter command">
-<button onclick="custom()">Run</button>
+<button onclick="send('screenshot')">Screenshot</button>
+<button onclick="send('getfiles')">Files</button>
 </div>
 
 </div>
+
+<h2>🖱️ Touchpad</h2>
+<div id="touchpad"></div>
 
 <pre id="out"></pre>
 
@@ -140,15 +96,51 @@ function send(command){
     });
 }
 
-function custom(){
-    let cmd=document.getElementById("cmd").value;
-    send(cmd);
-}
+// TOUCHPAD LOGIC
+let lastX = 0;
+let lastY = 0;
 
+const pad = document.getElementById("touchpad");
+
+pad.addEventListener("touchstart", e => {
+    let t = e.touches[0];
+    lastX = t.clientX;
+    lastY = t.clientY;
+
+    send("mousedown");
+});
+
+pad.addEventListener("touchmove", e => {
+    let t = e.touches[0];
+
+    let dx = t.clientX - lastX;
+    let dy = t.clientY - lastY;
+
+    lastX = t.clientX;
+    lastY = t.clientY;
+
+    fetch(SERVER + "/send", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+            command: "move " + dx + " " + dy
+        })
+    });
+});
+
+pad.addEventListener("touchend", () => {
+    send("mouseup");
+});
+
+pad.addEventListener("click", () => {
+    send("click");
+});
+
+// output
 async function getOutput(){
-    let res=await fetch(SERVER+"/output");
-    let data=await res.json();
-    document.getElementById("out").innerText=data.output;
+    let res = await fetch(SERVER + "/output");
+    let data = await res.json();
+    document.getElementById("out").innerText = data.output;
 }
 
 setInterval(getOutput,2000);
