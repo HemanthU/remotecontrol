@@ -21,16 +21,32 @@ button {
 input {
     padding:10px;
     width:220px;
+    margin:5px;
 }
 .section {
     margin:20px;
+}
+.hidden {
+    display:none;
 }
 </style>
 </head>
 
 <body>
 
-<h1>⚡ MAX Control Panel</h1>
+<h1>🔐 MAX Secure Login</h1>
+
+<!-- LOGIN -->
+<div id="login">
+    <input id="keyInput" placeholder="Enter Access Key">
+    <br>
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- CONTROL PANEL -->
+<div id="panel" class="hidden">
+
+<h2>⚡ MAX Control Panel</h2>
 
 <div class="section">
 <h3>Apps</h3>
@@ -58,27 +74,52 @@ input {
 <button onclick="custom()">Send</button>
 </div>
 
+<button onclick="logout()">Logout</button>
+
 <pre id="out"></pre>
+
+</div>
 
 <script>
 const SERVER = "https://remotecontrol-24kg.onrender.com";
+let USER_KEY = "";
 
+// 🔐 login
+function login(){
+    USER_KEY = document.getElementById("keyInput").value;
+
+    if(USER_KEY){
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panel").classList.remove("hidden");
+    }
+}
+
+// 🚪 logout
+function logout(){
+    USER_KEY = "";
+    document.getElementById("panel").classList.add("hidden");
+    document.getElementById("login").style.display = "block";
+}
+
+// 🚀 send command
 function send(command){
     fetch(SERVER+"/send",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
             command:command,
-            key:"hemu123"
+            key: USER_KEY
         })
     });
 }
 
+// custom command
 function custom(){
     let cmd=document.getElementById("cmd").value;
     send(cmd);
 }
 
+// output
 async function getOutput(){
     let res=await fetch(SERVER+"/output");
     let data=await res.json();
