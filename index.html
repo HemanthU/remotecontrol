@@ -15,9 +15,6 @@ body {
     text-align:center;
 }
 
-h1 { margin:20px; }
-#status { margin-bottom:10px; }
-
 .container {
     display:flex;
     flex-wrap:wrap;
@@ -53,7 +50,6 @@ pre {
     max-width:1100px;
     height:420px;
     overflow:auto;
-    text-align:left;
 }
 </style>
 </head>
@@ -64,6 +60,60 @@ pre {
 <h3 id="status">🟢 Ready</h3>
 
 <div class="container">
+
+<!-- EXISTING SECTIONS (UNCHANGED) -->
+<div class="card">
+<h3>Apps</h3>
+<button onclick="send('calc')">Calc</button>
+<button onclick="send('notepad')">Notepad</button>
+<button onclick="send('mspaint')">Paint</button>
+<button onclick="send('taskmgr')">TaskMgr</button>
+<button onclick="send('cmd')">CMD</button>
+<button onclick="send('powershell')">PowerShell</button>
+</div>
+
+<div class="card">
+<h3>Web</h3>
+<button onclick="send('web google.com')">Google</button>
+<button onclick="send('web youtube.com')">YouTube</button>
+<button onclick="send('web github.com')">GitHub</button>
+<button onclick="send('web chat.openai.com')">ChatGPT</button>
+</div>
+
+<div class="card">
+<h3>System</h3>
+<button onclick="send('shutdown')">Shutdown</button>
+<button onclick="send('restart')">Restart</button>
+<button onclick="send('lock')">Lock</button>
+</div>
+
+<div class="card">
+<h3>Files</h3>
+<button onclick="send('files')">List</button>
+<button onclick="send('open_c')">C Drive</button>
+<button onclick="send('open_d')">D Drive</button>
+</div>
+
+<div class="card">
+<h3>Info</h3>
+<button onclick="send('ipconfig')">IP</button>
+<button onclick="send('systeminfo')">System</button>
+<button onclick="send('whoami')">User</button>
+<button onclick="send('hostname')">PC Name</button>
+</div>
+
+<div class="card">
+<h3>Advanced</h3>
+<button onclick="send('screenshot')">Shot</button>
+<button onclick="send('webcam')">Cam</button>
+<button onclick="send('tasklist')">Processes</button>
+<button onclick="send('watch_on')">Watch</button>
+<button onclick="send('watch_off')">Stop</button>
+<button onclick="send('mic_on')">Mic ON</button>
+<button onclick="send('mic_off')">Mic OFF</button>
+</div>
+
+<!-- 🔥 NEW FEATURES ADDED -->
 
 <div class="card">
 <h3>Volume</h3>
@@ -76,14 +126,6 @@ pre {
 <h3>Brightness</h3>
 <button onclick="send('brightness_up')">Bright +</button>
 <button onclick="send('brightness_down')">Bright -</button>
-</div>
-
-<div class="card">
-<h3>Apps</h3>
-<button onclick="send('calc')">Calc</button>
-<button onclick="send('notepad')">Notepad</button>
-<button onclick="send('cmd')">CMD</button>
-<button onclick="send('powershell')">PowerShell</button>
 </div>
 
 <div class="card">
@@ -101,28 +143,22 @@ pre {
 </div>
 
 <div class="card">
-<h3>Web</h3>
-<button onclick="send('web google.com')">Google</button>
-<button onclick="send('web youtube.com')">YouTube</button>
-<button onclick="send('web github.com')">GitHub</button>
-</div>
-
-<div class="card">
-<h3>Screen</h3>
-<button onclick="send('screenshot')">Shot</button>
-<button onclick="send('webcam')">Cam</button>
+<h3>Open App</h3>
+<input id="openapp" placeholder="type app name">
+<br><br>
+<button onclick="openApp()">Open</button>
 </div>
 
 <div class="card">
 <h3>Command</h3>
-<input id="cmd" placeholder="Enter command" style="width:90%">
+<input id="cmd" placeholder="Enter command">
 <br><br>
 <button onclick="custom()">Run</button>
 </div>
 
 <div class="card">
 <h3>Automation</h3>
-<textarea id="auto" placeholder="Enter commands line by line" style="width:90%;height:100px"></textarea>
+<textarea id="auto" placeholder="Enter commands"></textarea>
 <br><br>
 <button onclick="runAuto()">Run</button>
 </div>
@@ -146,8 +182,12 @@ function send(command){
 }
 
 function custom(){
-    let cmd = document.getElementById("cmd").value;
-    send(cmd);
+    send(document.getElementById("cmd").value);
+}
+
+function openApp(){
+    let app = document.getElementById("openapp").value;
+    send("open " + app);
 }
 
 async function runAuto(){
