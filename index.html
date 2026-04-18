@@ -17,6 +17,11 @@ body {
 
 h1 { margin:20px; }
 
+#status {
+    margin-bottom:10px;
+}
+
+/* Layout */
 .container {
     display:flex;
     flex-wrap:wrap;
@@ -25,15 +30,14 @@ h1 { margin:20px; }
 
 .card {
     background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.1);
     padding:15px;
     margin:10px;
     border-radius:18px;
     width:300px;
-    transition:0.3s;
 }
 
+/* Buttons */
 button {
     margin:6px;
     padding:10px;
@@ -42,14 +46,17 @@ button {
     background:#22c55e;
     color:white;
     width:120px;
+    cursor:pointer;
 }
 
-input {
+input, textarea {
     padding:10px;
     width:90%;
+    border-radius:8px;
+    border:none;
 }
 
-/* 🔥 ONLY SIZE INCREASED */
+/* Output (bigger, same style) */
 pre {
     margin:20px auto;
     background:black;
@@ -70,6 +77,7 @@ pre {
 <body>
 
 <h1>⚡ MAX Remote Control</h1>
+<h3 id="status">🟢 Ready</h3>
 
 <div class="container">
 
@@ -126,12 +134,30 @@ pre {
 <button onclick="send('beep')">Beep</button>
 </div>
 
+<!-- Command -->
+<div class="card">
+<h3>Command</h3>
+<input id="cmd" placeholder="Enter command">
+<br><br>
+<button onclick="custom()">Run</button>
+</div>
+
 <!-- Automation -->
 <div class="card">
 <h3>Automation</h3>
+
 <button onclick="send('demo')">Demo</button>
 <button onclick="send('study_mode')">Study</button>
 <button onclick="send('fun_mode')">Fun</button>
+
+<br><br>
+
+<textarea id="auto" placeholder="Enter commands line by line"></textarea>
+
+<br><br>
+
+<button onclick="runAuto()">Run Automation</button>
+
 </div>
 
 </div>
@@ -142,19 +168,69 @@ pre {
 const SERVER = "https://remotecontrol-24kg.onrender.com";
 
 function send(command){
+    document.getElementById("status").innerText = "🟡 Sending...";
     document.getElementById("out").innerText = "> Executing " + command;
 
     fetch(SERVER+"/send",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({command})
+    })
+    .then(()=>{
+        document.getElementById("status").innerText = "🟠 Executing...";
+    })
+    .catch(()=>{
+        document.getElementById("status").innerText = "🔴 Server Error";
     });
 }
 
+function custom(){
+    let cmd = document.getElementById("cmd").value;
+    send(cmd);
+}
+
+function runAuto(){
+    let commands = document.getElementById("auto").value.split("\n");
+    let i = 0;
+
+    function runNext(){
+        if(i >= commands.length) return;
+
+        let cmd = commands[i].trim();
+        if(cmd){
+            send(cmd);
+        }
+
+        i++;
+        setTimeout(runNext, 1500);
+    }
+
+    runNext();
+}
+
 async function getOutput(){
-    let res=await fetch(SERVER+"/output");
-    let data=await res.json();
-    document.getElementById("out").innerText = "> " + data.output;
+    try{
+        let res = await fetch(SERVER+"/output");
+        let data = await res.json();
+
+        let out = data.output;
+
+        if(out && out.startsWith("IMG:")){
+            let imgData = out.replace("IMG:","");
+            document.getElementById("out").innerHTML =
+                `<img src="data:image/png;base64,${imgData}" width="100%">`;
+        } else if(out){
+            document.getElementById("out").innerText = "> " + out;
+        }
+
+        document.getElementById("status").innerText = "🟢 Completed";
+
+        document.getElementById("out").scrollTop =
+        document.getElementById("out").scrollHeight;
+
+    } catch {
+        document.getElementById("status").innerText = "🔴 Offline";
+    }
 }
 
 setInterval(getOutput,2000);
