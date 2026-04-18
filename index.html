@@ -16,12 +16,8 @@ body {
 }
 
 h1 { margin:20px; }
+#status { margin-bottom:10px; }
 
-#status {
-    margin-bottom:10px;
-}
-
-/* Layout */
 .container {
     display:flex;
     flex-wrap:wrap;
@@ -37,7 +33,6 @@ h1 { margin:20px; }
     width:300px;
 }
 
-/* Buttons */
 button {
     margin:6px;
     padding:10px;
@@ -46,17 +41,13 @@ button {
     background:#22c55e;
     color:white;
     width:120px;
-    cursor:pointer;
 }
 
 input, textarea {
     padding:10px;
     width:90%;
-    border-radius:8px;
-    border:none;
 }
 
-/* Output (bigger, same style) */
 pre {
     margin:20px auto;
     background:black;
@@ -130,8 +121,13 @@ pre {
 <div class="card">
 <h3>Advanced</h3>
 <button onclick="send('screenshot')">Shot</button>
+<button onclick="send('webcam')">📷 Cam</button>
 <button onclick="send('tasklist')">Processes</button>
 <button onclick="send('beep')">Beep</button>
+<button onclick="send('watch_on')">👁️ Watch</button>
+<button onclick="send('watch_off')">🛑 Stop</button>
+<button onclick="send('mic_on')">🎤 Mic ON</button>
+<button onclick="send('mic_off')">🛑 Mic OFF</button>
 </div>
 
 <!-- Command -->
@@ -145,7 +141,6 @@ pre {
 <!-- Automation -->
 <div class="card">
 <h3>Automation</h3>
-
 <button onclick="send('demo')">Demo</button>
 <button onclick="send('study_mode')">Study</button>
 <button onclick="send('fun_mode')">Fun</button>
@@ -157,7 +152,6 @@ pre {
 <br><br>
 
 <button onclick="runAuto()">Run Automation</button>
-
 </div>
 
 </div>
@@ -219,12 +213,21 @@ async function getOutput(){
             let imgData = out.replace("IMG:","");
             document.getElementById("out").innerHTML =
                 `<img src="data:image/png;base64,${imgData}" width="100%">`;
+
+        } else if(out && out.startsWith("AUDIO:")){
+            let audioData = out.replace("AUDIO:","");
+            document.getElementById("out").innerHTML =
+                `<audio controls autoplay style="width:100%">
+                    <source src="data:audio/wav;base64,${audioData}" type="audio/wav">
+                </audio>`;
+
         } else if(out){
             document.getElementById("out").innerText = "> " + out;
         }
 
         document.getElementById("status").innerText = "🟢 Completed";
 
+        // auto scroll for text
         document.getElementById("out").scrollTop =
         document.getElementById("out").scrollHeight;
 
