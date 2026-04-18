@@ -70,8 +70,6 @@ pre {
 
 <div class="container">
 
-<!-- ALL YOUR ORIGINAL CARDS (UNCHANGED) -->
-
 <!-- Apps -->
 <div class="card">
 <h3>Apps</h3>
@@ -130,8 +128,7 @@ pre {
 <button onclick="send('mic_off')">🛑 Mic OFF</button>
 </div>
 
-<!-- 🔥 NEW FEATURES (ADDED ONLY) -->
-
+<!-- Volume -->
 <div class="card">
 <h3>Volume</h3>
 <button onclick="send('volume_up')">Vol +</button>
@@ -139,12 +136,14 @@ pre {
 <button onclick="send('mute')">Mute</button>
 </div>
 
+<!-- Brightness -->
 <div class="card">
 <h3>Brightness</h3>
 <button onclick="send('brightness_up')">Bright +</button>
 <button onclick="send('brightness_down')">Bright -</button>
 </div>
 
+<!-- Taskbar -->
 <div class="card">
 <h3>Taskbar</h3>
 <button onclick="send('task1')">1</button>
@@ -159,6 +158,7 @@ pre {
 <button onclick="send('task10')">10</button>
 </div>
 
+<!-- Open App -->
 <div class="card">
 <h3>Open App</h3>
 <input id="openapp" placeholder="type app name">
@@ -219,13 +219,11 @@ function custom(){
     send(cmd);
 }
 
-/* 🔥 FIXED AUTOMATION ONLY */
 async function runAuto(){
     let commands = document.getElementById("auto").value.split("\n");
 
     for(let i = 0; i < commands.length; i++){
         let cmd = commands[i].trim();
-
         if(cmd){
             send(cmd);
             await new Promise(r => setTimeout(r, 3000));
@@ -237,13 +235,19 @@ async function getOutput(){
     try{
         let res = await fetch(SERVER+"/output");
         let data = await res.json();
-
         let out = data.output;
 
         if(out && out.startsWith("IMG:")){
             let imgData = out.replace("IMG:","");
             document.getElementById("out").innerHTML =
                 `<img src="data:image/png;base64,${imgData}" width="100%">`;
+
+        } else if(out && out.startsWith("AUDIO:")){
+            let audioData = out.replace("AUDIO:","");
+            document.getElementById("out").innerHTML =
+                `<audio controls autoplay style="width:100%">
+                    <source src="data:audio/wav;base64,${audioData}">
+                </audio>`;
 
         } else if(out && out.startsWith("AUDIO_MP3:")){
             let audioData = out.replace("AUDIO_MP3:","");
