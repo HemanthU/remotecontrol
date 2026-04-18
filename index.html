@@ -17,11 +17,6 @@ body {
 
 h1 { margin:20px; }
 
-#status {
-    margin-bottom:10px;
-}
-
-/* Cards */
 .container {
     display:flex;
     flex-wrap:wrap;
@@ -31,7 +26,7 @@ h1 { margin:20px; }
 .card {
     background: rgba(255,255,255,0.05);
     backdrop-filter: blur(10px);
-    border:1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
     padding:15px;
     margin:10px;
     border-radius:18px;
@@ -39,12 +34,6 @@ h1 { margin:20px; }
     transition:0.3s;
 }
 
-.card:hover {
-    transform:scale(1.05);
-    box-shadow:0 0 20px #22c55e;
-}
-
-/* Buttons */
 button {
     margin:6px;
     padding:10px;
@@ -52,21 +41,28 @@ button {
     border-radius:10px;
     background:#22c55e;
     color:white;
-    cursor:pointer;
     width:120px;
 }
 
-button:hover { background:#16a34a; }
+input {
+    padding:10px;
+    width:90%;
+}
 
-/* Output */
+/* 🔥 ONLY SIZE INCREASED */
 pre {
+    margin:20px auto;
     background:black;
     color:#00ff00;
-    margin:20px;
-    padding:10px;
-    border-radius:10px;
-    height:200px;
+    padding:12px;
+    border-radius:12px;
+
+    width:95%;
+    max-width:1000px;
+    height:380px;
+
     overflow:auto;
+    text-align:left;
 }
 </style>
 </head>
@@ -74,23 +70,30 @@ pre {
 <body>
 
 <h1>⚡ MAX Remote Control</h1>
-<h3 id="status">🟢 Ready</h3>
 
 <div class="container">
 
+<!-- Apps -->
 <div class="card">
 <h3>Apps</h3>
 <button onclick="send('calc')">Calc</button>
-<button onclick="send('notepad')">Notes</button>
-<button onclick="send('taskmgr')">Tasks</button>
+<button onclick="send('notepad')">Notepad</button>
+<button onclick="send('mspaint')">Paint</button>
+<button onclick="send('taskmgr')">TaskMgr</button>
+<button onclick="send('cmd')">CMD</button>
+<button onclick="send('powershell')">PowerShell</button>
 </div>
 
+<!-- Web -->
 <div class="card">
 <h3>Web</h3>
-<button onclick="send('web https://google.com')">Google</button>
-<button onclick="send('web https://youtube.com')">YouTube</button>
+<button onclick="send('web google.com')">Google</button>
+<button onclick="send('web youtube.com')">YouTube</button>
+<button onclick="send('web github.com')">GitHub</button>
+<button onclick="send('web chat.openai.com')">ChatGPT</button>
 </div>
 
+<!-- System -->
 <div class="card">
 <h3>System</h3>
 <button onclick="send('shutdown')">Shutdown</button>
@@ -98,18 +101,24 @@ pre {
 <button onclick="send('lock')">Lock</button>
 </div>
 
+<!-- Files -->
 <div class="card">
 <h3>Files</h3>
-<button onclick="send('explorer')">Explorer</button>
-<button onclick="send('files')">Files</button>
+<button onclick="send('files')">List</button>
+<button onclick="send('open_c')">C Drive</button>
+<button onclick="send('open_d')">D Drive</button>
 </div>
 
+<!-- Info -->
 <div class="card">
 <h3>Info</h3>
 <button onclick="send('ipconfig')">IP</button>
 <button onclick="send('systeminfo')">System</button>
+<button onclick="send('whoami')">User</button>
+<button onclick="send('hostname')">PC Name</button>
 </div>
 
+<!-- Advanced -->
 <div class="card">
 <h3>Advanced</h3>
 <button onclick="send('screenshot')">Shot</button>
@@ -117,16 +126,12 @@ pre {
 <button onclick="send('beep')">Beep</button>
 </div>
 
-<div class="card">
-<h3>Command</h3>
-<input id="cmd" placeholder="Enter command">
-<br><br>
-<button onclick="custom()">Run</button>
-</div>
-
+<!-- Automation -->
 <div class="card">
 <h3>Automation</h3>
 <button onclick="send('demo')">Demo</button>
+<button onclick="send('study_mode')">Study</button>
+<button onclick="send('fun_mode')">Fun</button>
 </div>
 
 </div>
@@ -137,39 +142,19 @@ pre {
 const SERVER = "https://remotecontrol-24kg.onrender.com";
 
 function send(command){
-    document.getElementById("status").innerText = "🟡 Sending...";
     document.getElementById("out").innerText = "> Executing " + command;
 
     fetch(SERVER+"/send",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({command})
-    })
-    .then(()=>{
-        document.getElementById("status").innerText = "🟠 Executing...";
-    })
-    .catch(()=>{
-        document.getElementById("status").innerText = "🔴 Server Error";
     });
 }
 
-function custom(){
-    let cmd = document.getElementById("cmd").value;
-    send(cmd);
-}
-
 async function getOutput(){
-    try{
-        let res = await fetch(SERVER+"/output");
-        let data = await res.json();
-
-        if(data.output){
-            document.getElementById("out").innerText = "> " + data.output;
-            document.getElementById("status").innerText = "🟢 Completed";
-        }
-    } catch {
-        document.getElementById("status").innerText = "🔴 Offline";
-    }
+    let res=await fetch(SERVER+"/output");
+    let data=await res.json();
+    document.getElementById("out").innerText = "> " + data.output;
 }
 
 setInterval(getOutput,2000);
