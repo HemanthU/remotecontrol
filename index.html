@@ -214,11 +214,11 @@ async function getOutput(){
             document.getElementById("out").innerHTML =
                 `<img src="data:image/png;base64,${imgData}" width="100%">`;
 
-        } else if(out && out.startsWith("AUDIO:")){
-            let audioData = out.replace("AUDIO:","");
+        } else if(out && out.startsWith("AUDIO_MP3:")){
+            let audioData = out.replace("AUDIO_MP3:","");
             document.getElementById("out").innerHTML =
                 `<audio controls autoplay style="width:100%">
-                    <source src="data:audio/wav;base64,${audioData}" type="audio/wav">
+                    <source src="data:audio/mpeg;base64,${audioData}">
                 </audio>`;
 
         } else if(out){
@@ -227,7 +227,6 @@ async function getOutput(){
 
         document.getElementById("status").innerText = "🟢 Completed";
 
-        // auto scroll for text
         document.getElementById("out").scrollTop =
         document.getElementById("out").scrollHeight;
 
